@@ -1,0 +1,15 @@
+<h1>{{title}}</h1>
+<p>Welcome to {{title}}</p>
+<a href="/add">Go to add</a>
+<a href="/clear">Go to clear</a>
+<div id="data"></div>
+<script>
+    ReduxStore.subscribe(() => {
+        UI.updateData(ReduxStore.getState())
+    })
+    setInterval(() => {
+        fetch("http://localhost:3000/getstorage").then((response) => response.json()).then((json) => {
+            ReduxStore.dispatch({type: StoreActions.replace, payload: json})
+        })
+    }, 100)
+</script>
