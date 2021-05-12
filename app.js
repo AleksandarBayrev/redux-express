@@ -5,7 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const DBConnection = require('./db');
+const Storage = require('./storage');
+const { Queries } = require('./constants');
 
 var app = express();
 
@@ -21,7 +23,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,5 +39,13 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+(function() {
+  setInterval(() => {
+    DBConnection.query(Queries.SELECT('storage'), function(err, results, fields) {
+      results && results.map(row => Storage.add(row))
+    })
+  }, 1000)
+})()
 
 module.exports = app;

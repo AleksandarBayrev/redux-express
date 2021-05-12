@@ -1,6 +1,8 @@
 var express = require('express');
+const DBConnection = require('../db');
 var router = express.Router();
 const Storage = require('../storage')
+const { Queries } = require('../constants');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -12,7 +14,10 @@ router.get('/add', function(req, res, next) {
 })
 
 router.post('/add', function(req, res, next) {
-  Storage.add(req.body.data)
+  DBConnection.query(Queries.INSERT('storage', ['data'], [req.body.data]))
+  DBConnection.query(Queries.SELECT('storage'), function(err, results, fields) {
+    results && results.map(row => Storage.add(row))
+  })
   res.redirect('/');
 })
 
